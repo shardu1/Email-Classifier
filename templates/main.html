@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Spam Detector</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            text-align: center;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+            width: 50%;
+            position: relative;
+            z-index: 1;
+        }
+        textarea {
+            width: 90%;
+            height: 100px;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            background: #ff4c4c;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ff1a1a;
+        }
+        .result {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        .animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .animation span {
+            position: absolute;
+            background: rgba(4, 0, 255, 0.5);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(13, 0, 255, 0.8);
+            animation: floating 10s linear infinite;
+        }
+        @keyframes floating {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animation"></div>
+    <div class="container">
+        <h1>Email Spam Detector</h1>
+        <form id="spamForm">
+            <textarea id="emailText" name="emailText" placeholder="Enter email content here..."></textarea><br>
+            <button type="submit">Check</button>
+        </form>
+        <p class="result" id="resultText"></p>
+    </div>
+    
+    <script>
+        document.getElementById("spamForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            let emailText = document.getElementById("emailText").value;
+            let resultText = document.getElementById("resultText");
+            
+            const response = await fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email: emailText })
+            });
+            
+            const data = await response.json();
+            
+            if (data.spam) {
+                resultText.textContent = "🚨 Spam Detected!";
+                resultText.style.color = "red";
+            } else {
+                resultText.textContent = "✅ Not Spam!";
+                resultText.style.color = "green";
+            }
+        });
+        
+        function createAnimation() {
+            const animationContainer = document.querySelector('.animation');
+            for (let i = 0; i < 30; i++) {
+                let span = document.createElement('span');
+                let size = Math.random() * 15 + 5;
+                let posX = Math.random() * window.innerWidth;
+                let delay = Math.random() * -10;
+                let duration = Math.random() * 10 + 5;
+                
+                span.style.width = `${size}px`;
+                span.style.height = `${size}px`;
+                span.style.left = `${posX}px`;
+                span.style.animationDelay = `${delay}s`;
+                span.style.animationDuration = `${duration}s`;
+                
+                animationContainer.appendChild(span);
+            }
+        }
+        createAnimation();
+    </script>
+</body>
+</html>
